@@ -26,6 +26,23 @@ option:
 Shrine::Storage::Gridfs.new(client: client, prefix: "foo")
 ```
 
+### URLs
+
+You can generate URLs through which the GridFS files will be streamed with the
+`download_endpoint` plugin:
+
+```rb
+Shrine.plugin :download_endpoint, storages: [:store]
+```
+```rb
+Rails.application.routes.draw do
+  mount Shrine::DownloadEndpoint => "/attachments"
+end
+```
+```rb
+user.avatar_url #=> "/attachments/store/9k30fks72j8.jpg"
+```
+
 ## Development
 
 You can run the tests with Rake:

@@ -1,3 +1,4 @@
+require "shrine"
 require "mongo"
 require "stringio"
 
@@ -17,16 +18,20 @@ class Shrine
         filename = metadata["filename"] || id
         file = Mongo::Grid::File.new(io.read, filename: filename, metadata: metadata)
         result = bucket.insert_one(file)
-        id.replace(result.to_s)
-        io.rewind
+        id.replace(result.to_s + File.extname(id))
       end
 
       def download(id)
-        filename = bucket.find(_id: bson_id(id)).first[:filename]
-        tempfile = Tempfile.new(["shrine", File.extname(filename)], binmode: true)
+        tempfile = Tempfile.new(["shrine", File.extname(id)], binmode: true)
         bucket.download_to_stream(bson_id(id), tempfile)
         tempfile.open
         tempfile
+      end
+
+      def stream(id)
+        bucket.open_download_stream(bson_id(id)) do |stream|
+          stream.each { |chunk| yield chunk }
+        end
       end
 
       def open(id)
@@ -65,7 +70,7 @@ class Shrine
       private
 
       def bson_id(id)
-        BSON::ObjectId(id)
+        BSON::ObjectId(File.basename(id, ".*"))
       end
     end
   end

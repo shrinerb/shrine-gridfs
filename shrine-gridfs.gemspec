@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name          = "shrine-gridfs"
-  gem.version       = "0.1.0"
+  gem.version       = "0.1.1"
 
   gem.required_ruby_version = ">= 2.1"
 
@@ -13,10 +13,10 @@ Gem::Specification.new do |gem|
   gem.files        = Dir["README.md", "LICENSE.txt", "lib/**/*.rb", "shrine-gridfs.gemspec"]
   gem.require_path = "lib"
 
+  gem.add_dependency "shrine", "~> 1.1"
   gem.add_dependency "mongo", ">= 2.2"
 
   gem.add_development_dependency "rake"
-  gem.add_development_dependency "shrine"
   gem.add_development_dependency "minitest"
   gem.add_development_dependency "dotenv"
 end
