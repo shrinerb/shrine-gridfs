@@ -16,7 +16,7 @@ class Shrine
 
       def upload(io, id, metadata = {})
         filename = metadata["filename"] || id
-        file = Mongo::Grid::File.new(io.read, filename: filename, metadata: metadata)
+        file = Mongo::Grid::File.new(io, filename: filename, metadata: metadata)
         result = bucket.insert_one(file)
         id.replace(result.to_s + File.extname(id))
       end

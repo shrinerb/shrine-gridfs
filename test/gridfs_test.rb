@@ -12,6 +12,7 @@ describe Shrine::Storage::Gridfs do
 
   before do
     @gridfs = gridfs
+    @gridfs.instance_eval { def url(*) "" end } # to eliminate warning
   end
 
   after do
