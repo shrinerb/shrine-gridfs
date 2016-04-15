@@ -1,5 +1,6 @@
 require "shrine"
 require "mongo"
+
 require "stringio"
 
 class Shrine
@@ -29,8 +30,9 @@ class Shrine
       end
 
       def stream(id)
+        content_length = bucket.find(_id: bson_id(id)).first["length"]
         bucket.open_download_stream(bson_id(id)) do |stream|
-          stream.each { |chunk| yield chunk }
+          stream.each { |chunk| yield chunk, content_length }
         end
       end
 

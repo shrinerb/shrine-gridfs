@@ -12,7 +12,6 @@ describe Shrine::Storage::Gridfs do
 
   before do
     @gridfs = gridfs
-    @gridfs.instance_eval { def url(*) "" end } # to eliminate warning
   end
 
   after do
@@ -20,7 +19,7 @@ describe Shrine::Storage::Gridfs do
   end
 
   it "passes the linter" do
-    Shrine::Storage::Linter.new(@gridfs, action: :warn).call
+    Shrine::Storage::Linter.new(@gridfs).call
   end
 
   describe "#download" do
