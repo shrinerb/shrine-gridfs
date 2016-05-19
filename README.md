@@ -1,6 +1,9 @@
-# Shrine::Gridfs
+# Shrine::Storage::Gridfs
 
 Provides MongoDB's [GridFS] storage for [Shrine].
+
+GridFS is a specification for storing and retrieving files in chunks, and is
+convenient when MongoDB is already used in the application.
 
 ## Installation
 
@@ -51,9 +54,14 @@ You can run the tests with Rake:
 $ bundle exec rake test
 ```
 
+## Inspiration
+
+This gem has been inspired by [refile-gridfs].
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
 
 [GridFS]: https://docs.mongodb.org/v3.0/core/gridfs/
 [Shrine]: https://github.com/janko-m/shrine
+[refile-gridfs]: https://github.com/Titinux/refile-gridfs

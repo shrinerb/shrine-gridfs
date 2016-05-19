@@ -15,7 +15,7 @@ describe Shrine::Storage::Gridfs do
   end
 
   after do
-    @gridfs.clear!(:confirm)
+    @gridfs.clear!
   end
 
   it "passes the linter" do

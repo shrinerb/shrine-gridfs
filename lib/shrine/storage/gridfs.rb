@@ -15,9 +15,9 @@ class Shrine
         @bucket.send(:ensure_indexes!)
       end
 
-      def upload(io, id, metadata = {})
-        filename = metadata["filename"] || id
-        file = Mongo::Grid::File.new(io, filename: filename, metadata: metadata)
+      def upload(io, id, shrine_metadata: {}, **upload_options)
+        filename = shrine_metadata["filename"] || id
+        file = Mongo::Grid::File.new(io, filename: filename, metadata: shrine_metadata)
         result = bucket.insert_one(file)
         id.replace(result.to_s + File.extname(id))
       end
@@ -63,8 +63,7 @@ class Shrine
       def url(id, **options)
       end
 
-      def clear!(confirm = nil)
-        raise Shrine::Confirm unless confirm == :confirm
+      def clear!
         bucket.files_collection.find.delete_many
         bucket.chunks_collection.find.delete_many
       end

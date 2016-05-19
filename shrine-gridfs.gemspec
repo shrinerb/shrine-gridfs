@@ -4,7 +4,7 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = ">= 2.1"
 
-  gem.summary      = "Provides Mongo GridFS storage for Shrine."
+  gem.summary      = "Provides MongoDB's GridFS storage for Shrine."
   gem.homepage     = "https://github.com/janko-m/shrine-gridfs"
   gem.authors      = ["Janko Marohnić"]
   gem.email        = ["janko.marohnic@gmail.com"]
@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.files        = Dir["README.md", "LICENSE.txt", "lib/**/*.rb", "shrine-gridfs.gemspec"]
   gem.require_path = "lib"
 
-  gem.add_dependency "shrine", "~> 1.1"
+  gem.add_dependency "shrine", "~> 2.0"
   gem.add_dependency "mongo", ">= 2.2.2", "< 3"
 
   gem.add_development_dependency "rake"
