@@ -6,6 +6,7 @@ require "minitest/pride"
 require "shrine/storage/gridfs"
 
 require "forwardable"
+require "stringio"
 
 class FakeIO
   def initialize(content)

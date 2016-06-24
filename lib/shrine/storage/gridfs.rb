@@ -1,5 +1,6 @@
 require "shrine"
 require "mongo"
+require "down"
 
 require "stringio"
 
@@ -23,21 +24,18 @@ class Shrine
       end
 
       def download(id)
-        tempfile = Tempfile.new(["shrine", File.extname(id)], binmode: true)
-        bucket.download_to_stream(bson_id(id), tempfile)
-        tempfile.open
-        tempfile
-      end
-
-      def stream(id)
-        content_length = bucket.find(_id: bson_id(id)).first["length"]
-        bucket.open_download_stream(bson_id(id)) do |stream|
-          stream.each { |chunk| yield chunk, content_length }
-        end
+        Down.copy_to_tempfile(id, open(id))
       end
 
       def open(id)
-        download(id)
+        content_length = bucket.find(_id: bson_id(id)).first["length"]
+        stream = bucket.open_download_stream(bson_id(id))
+
+        Down::ChunkedIO.new(
+          size: content_length,
+          chunks: stream.enum_for(:each),
+          on_close: -> { stream.close },
+        )
       end
 
       def read(id)
@@ -66,6 +64,16 @@ class Shrine
       def clear!
         bucket.files_collection.find.delete_many
         bucket.chunks_collection.find.delete_many
+      end
+
+      def method_missing(name, *args)
+        if name == :stream
+          warn "Shrine::Storage::Gridfs#stream is deprecated over calling #each_chunk on result of Gridfs#open."
+          content_length = bucket.find(_id: bson_id(*args)).first["length"]
+          bucket.open_download_stream(bson_id(*args)) do |stream|
+            stream.each { |chunk| yield chunk, content_length }
+          end
+        end
       end
 
       private
