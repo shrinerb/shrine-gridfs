@@ -56,7 +56,7 @@ $ bundle exec rake test
 
 ## Inspiration
 
-This gem has been inspired by [refile-gridfs].
+This gem was inspired by [refile-gridfs].
 
 ## License
 
