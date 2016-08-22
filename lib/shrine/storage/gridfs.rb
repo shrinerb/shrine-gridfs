@@ -39,9 +39,7 @@ class Shrine
       end
 
       def read(id)
-        stringio = StringIO.new
-        bucket.download_to_stream(bson_id(id), stringio)
-        stringio.string
+        bucket.find_one(_id: bson_id(id)).data
       end
 
       def exists?(id)
