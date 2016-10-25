@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.files        = Dir["README.md", "LICENSE.txt", "lib/**/*.rb", "shrine-gridfs.gemspec"]
   gem.require_path = "lib"
 
-  gem.add_dependency "shrine", "~> 2.0"
+  gem.add_dependency "shrine", "~> 2.2"
   gem.add_dependency "mongo", ">= 2.2.2", "< 3"
   gem.add_dependency "down", ">= 2.3.3"
 

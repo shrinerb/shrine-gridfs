@@ -21,13 +21,4 @@ describe Shrine::Storage::Gridfs do
   it "passes the linter" do
     Shrine::Storage::Linter.new(@gridfs).call
   end
-
-  describe "#download" do
-    it "preserves the extension" do
-      @gridfs.upload(fakeio, id = "foo.jpg")
-      tempfile = @gridfs.download(id)
-
-      assert_equal ".jpg", File.extname(tempfile.path)
-    end
-  end
 end
