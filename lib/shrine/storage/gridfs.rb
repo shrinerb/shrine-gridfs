@@ -48,6 +48,7 @@ class Shrine
 
       def delete(id)
         bucket.delete(bson_id(id))
+      rescue Mongo::Error::FileNotFound
       end
 
       def multi_delete(ids)
