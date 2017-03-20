@@ -2,8 +2,6 @@ require "shrine"
 require "mongo"
 require "down"
 
-require "stringio"
-
 class Shrine
   module Storage
     class Gridfs
