@@ -42,17 +42,6 @@ class Shrine
         )
       end
 
-      def move(io, id, shrine_metadata: {}, **)
-        file = create_file(id, shrine_metadata: shrine_metadata)
-
-        chunks_collection.find(files_id: bson_id(io.id)).update_many("$set" => {files_id: file.id})
-        files_collection.delete_one(_id: bson_id(io.id))
-      end
-
-      def movable?(io, id)
-        io.is_a?(UploadedFile) && io.storage.is_a?(Storage::Gridfs)
-      end
-
       def open(id)
         content_length = bucket.find(_id: bson_id(id)).limit(1).first[:length]
         stream = bucket.open_download_stream(bson_id(id))
