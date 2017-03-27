@@ -54,7 +54,7 @@ class Shrine
       end
 
       def open(id)
-        content_length = bucket.find(_id: bson_id(id)).first["length"]
+        content_length = bucket.find(_id: bson_id(id)).limit(1).first[:length]
         stream = bucket.open_download_stream(bson_id(id))
 
         Down::ChunkedIO.new(
