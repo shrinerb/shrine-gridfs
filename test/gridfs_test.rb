@@ -12,6 +12,9 @@ describe Shrine::Storage::Gridfs do
 
   before do
     @gridfs = gridfs
+    shrine_class = Class.new(Shrine)
+    shrine_class.storages[:gridfs] = @gridfs
+    @uploader = shrine_class.new(:gridfs)
   end
 
   after do
@@ -46,6 +49,19 @@ describe Shrine::Storage::Gridfs do
       file_info = @gridfs.bucket.files_collection.find.first
       assert_equal "file.txt",   file_info[:filename]
       assert_equal "text/plain", file_info[:contentType]
+
+    it "copies another Gridfs file" do
+      content = "a" * 5*1024*1024 + "b" * 5*1024*1024
+      uploaded_file = @uploader.upload(fakeio(content))
+      source_id = uploaded_file.id
+      @gridfs.upload(uploaded_file, dest_id = "bar")
+
+      source_info = @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(source_id)).first
+      dest_info   = @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(dest_id)).first
+
+      refute_equal source_info[:_id], dest_info[:_id]
+      assert_equal content, @gridfs.open(dest_id).read
+      assert_equal "application/octet-stream", dest_info[:contentType]
     end
   end
 

@@ -40,6 +40,15 @@ change that via `:chunk_size`:
 Shrine::Storage::Gridfs.new(client: client, chunk_size: 1*1024*1024) # 1MB
 ```
 
+### Batch size
+
+When Gridfs storage uploads or copies a file, it will ensure that no more
+than `:batch_size` of data is loaded into memory at once (defaults to 5MB).
+
+```rb
+Shrine::Storage::Gridfs.new(client: client, batch_size: 10*1024*1024) # 10MB
+```
+
 ### URLs
 
 You can generate URLs through which the GridFS files will be streamed with the
