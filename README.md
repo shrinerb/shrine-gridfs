@@ -29,6 +29,15 @@ option:
 Shrine::Storage::Gridfs.new(client: client, prefix: "foo")
 ```
 
+### Chunk size
+
+By default the Gridfs storage will store files in chunks of 256KB, you can
+change that via `:chunk_size`:
+
+```rb
+Shrine::Storage::Gridfs.new(client: client, chunk_size: 1*1024*1024) # 1MB
+```
+
 ### URLs
 
 You can generate URLs through which the GridFS files will be streamed with the

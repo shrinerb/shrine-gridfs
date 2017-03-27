@@ -5,28 +5,31 @@ require "down"
 class Shrine
   module Storage
     class Gridfs
-      attr_reader :client, :prefix, :bucket
+      attr_reader :client, :prefix, :bucket, :chunk_size
 
-      def initialize(client:, prefix: "fs", **options)
-        @client = client
-        @prefix = prefix
-        @bucket = @client.database.fs(bucket_name: @prefix)
+      def initialize(client:, prefix: "fs", chunk_size: 256*1024, **options)
+        @client     = client
+        @prefix     = prefix
+        @chunk_size = chunk_size
+        @bucket     = @client.database.fs(bucket_name: @prefix)
+
         @bucket.send(:ensure_indexes!)
       end
 
       def upload(io, id, shrine_metadata: {}, **)
         filename = shrine_metadata["filename"] || id
-        file = Mongo::Grid::File.new(io, filename: filename, metadata: shrine_metadata)
-        result = bucket.insert_one(file)
-        id.replace(result.to_s + File.extname(id))
+        file = Mongo::Grid::File.new(io, filename: filename, metadata: shrine_metadata, chunk_size: chunk_size)
+        bucket.insert_one(file)
+        id.replace(file.id.to_s + File.extname(id))
       end
 
       def move(io, id, shrine_metadata: {}, **)
         filename = shrine_metadata["filename"] || id
-        files_collection.insert_one(_id: (file_id = BSON::ObjectId.new), filename: filename, metadata: shrine_metadata)
-        id.replace(file_id.to_s + File.extname(id))
+        file = Mongo::Grid::File.new("", filename: filename, metadata: shrine_metadata, chunk_size: chunk_size)
+        bucket.insert_one(file)
+        id.replace(file.id.to_s + File.extname(id))
 
-        chunks_collection.find(files_id: bson_id(io.id)).update_many("$set" => {files_id: file_id})
+        chunks_collection.find(files_id: bson_id(io.id)).update_many("$set" => {files_id: file.id})
         files_collection.delete_one(_id: bson_id(io.id))
       end
 
