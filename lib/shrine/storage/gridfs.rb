@@ -85,9 +85,10 @@ class Shrine
 
       def create_file(id, shrine_metadata: {})
         file = Mongo::Grid::File.new("",
-          filename:   shrine_metadata["filename"] || id,
-          metadata:   shrine_metadata,
-          chunk_size: chunk_size,
+          filename:     shrine_metadata["filename"] || id,
+          content_type: shrine_metadata["mime_type"],
+          metadata:     shrine_metadata,
+          chunk_size:   chunk_size,
         )
         id.replace(file.id.to_s + File.extname(id))
 

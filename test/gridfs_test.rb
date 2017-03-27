@@ -37,5 +37,12 @@ describe Shrine::Storage::Gridfs do
       assert_equal content, @gridfs.open(id).read
       assert_equal Digest::MD5.hexdigest(content), @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(id)).first[:md5]
     end
+
+    it "saves filename and content type" do
+      @gridfs.upload(fakeio, id = "foo", shrine_metadata: {"filename" => "file.txt", "mime_type" => "text/plain"})
+      file_info = @gridfs.bucket.files_collection.find.first
+      assert_equal "file.txt",   file_info[:filename]
+      assert_equal "text/plain", file_info[:contentType]
+    end
   end
 end
