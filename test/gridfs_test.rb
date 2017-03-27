@@ -35,7 +35,10 @@ describe Shrine::Storage::Gridfs do
       content = "a" * 5*1024*1024 + "b" * 5*1024*1024
       @gridfs.upload(fakeio(content), id = "foo")
       assert_equal content, @gridfs.open(id).read
-      assert_equal Digest::MD5.hexdigest(content), @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(id)).first[:md5]
+
+      file_info = @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(id)).first
+      assert_equal 10*1024*1024, file_info[:length]
+      assert_equal Digest::MD5.hexdigest(content), file_info[:md5]
     end
 
     it "saves filename and content type" do
@@ -43,6 +46,14 @@ describe Shrine::Storage::Gridfs do
       file_info = @gridfs.bucket.files_collection.find.first
       assert_equal "file.txt",   file_info[:filename]
       assert_equal "text/plain", file_info[:contentType]
+    end
+  end
+
+  describe "#open" do
+    it "returns correct #size" do
+      @gridfs.upload(fakeio("file"), id = "foo")
+      io = @gridfs.open(id)
+      assert_equal 4, io.size
     end
   end
 end

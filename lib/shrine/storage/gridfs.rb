@@ -33,7 +33,13 @@ class Shrine
           chunk.clear # deallocate string
         end
 
-        files_collection.find(_id: file.id).update_one("$set" => {md5: file.info.md5.hexdigest})
+        files_collection.find(_id: file.id).update_one(
+          "$set" => {
+            length:     io.size,
+            uploadDate: Time.now.utc,
+            md5:        file.info.md5.hexdigest,
+          }
+        )
       end
 
       def move(io, id, shrine_metadata: {}, **)
