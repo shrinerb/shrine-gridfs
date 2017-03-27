@@ -45,10 +45,16 @@ describe Shrine::Storage::Gridfs do
     end
 
     it "saves filename and content type" do
-      @gridfs.upload(fakeio, id = "foo", shrine_metadata: {"filename" => "file.txt", "mime_type" => "text/plain"})
-      file_info = @gridfs.bucket.files_collection.find.first
+      @gridfs.upload(fakeio, id1 = "foo", shrine_metadata: {"filename" => "file.txt", "mime_type" => "text/plain"})
+      file_info = @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(id1)).first
       assert_equal "file.txt",   file_info[:filename]
       assert_equal "text/plain", file_info[:contentType]
+
+      @gridfs.upload(fakeio, id2 = "foo")
+      file_info = @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(id2)).first
+      assert_equal "foo",                      file_info[:filename]
+      assert_equal "application/octet-stream", file_info[:contentType]
+    end
 
     it "copies another Gridfs file" do
       content = "a" * 5*1024*1024 + "b" * 5*1024*1024

@@ -133,14 +133,14 @@ class Shrine
       def create_file(id, shrine_metadata: {})
         file = Mongo::Grid::File.new("",
           filename:     shrine_metadata["filename"] || id,
-          content_type: shrine_metadata["mime_type"],
+          content_type: shrine_metadata["mime_type"] || "application/octet-stream",
           metadata:     shrine_metadata,
           chunk_size:   chunk_size,
         )
-        id.replace(file.id.to_s + File.extname(id))
 
         bucket.insert_one(file)
 
+        id.replace(file.id.to_s + File.extname(id))
         file.info.document[:md5] = Digest::MD5.new
 
         file
