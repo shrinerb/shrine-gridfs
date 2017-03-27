@@ -27,7 +27,7 @@ class Shrine
       end
 
       def open(id)
-        content_length = bucket.find(_id: bson_id(id)).limit(1).first[:length]
+        content_length = file_info(id)[:length]
         stream = bucket.open_download_stream(bson_id(id))
 
         Down::ChunkedIO.new(
@@ -38,7 +38,7 @@ class Shrine
       end
 
       def exists?(id)
-        !!bucket.find(_id: bson_id(id)).first
+        !!file_info(id)
       end
 
       def delete(id)
