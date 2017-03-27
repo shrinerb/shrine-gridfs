@@ -22,11 +22,20 @@ describe Shrine::Storage::Gridfs do
     Shrine::Storage::Linter.new(@gridfs).call
   end
 
-  it "allows inserting multiple files with the same filename" do
-    @gridfs.upload(fakeio("file1"), id1 = "foo", shrine_metadata: {"filename" => "file.ext"})
-    @gridfs.upload(fakeio("file2"), id2 = "bar", shrine_metadata: {"filename" => "file.ext"})
+  describe "#upload" do
+    it "allows multiple files with the same filename" do
+      @gridfs.upload(fakeio("file1"), id1 = "foo", shrine_metadata: {"filename" => "file.ext"})
+      @gridfs.upload(fakeio("file2"), id2 = "bar", shrine_metadata: {"filename" => "file.ext"})
 
-    assert_equal "file1", @gridfs.open(id1).read
-    assert_equal "file2", @gridfs.open(id2).read
+      assert_equal "file1", @gridfs.open(id1).read
+      assert_equal "file2", @gridfs.open(id2).read
+    end
+
+    it "saves file in batches" do
+      content = "a" * 5*1024*1024 + "b" * 5*1024*1024
+      @gridfs.upload(fakeio(content), id = "foo")
+      assert_equal content, @gridfs.open(id).read
+      assert_equal Digest::MD5.hexdigest(content), @gridfs.bucket.files_collection.find(_id: BSON::ObjectId(id)).first[:md5]
+    end
   end
 end

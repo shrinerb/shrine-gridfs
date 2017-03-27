@@ -1,11 +1,14 @@
 require "shrine"
 require "mongo"
 require "down"
+require "digest"
 
 class Shrine
   module Storage
     class Gridfs
       attr_reader :client, :prefix, :bucket, :chunk_size
+
+      BATCH_SIZE = 5 * 1024 * 1024
 
       def initialize(client:, prefix: "fs", chunk_size: 256*1024, **options)
         @client     = client
@@ -17,17 +20,24 @@ class Shrine
       end
 
       def upload(io, id, shrine_metadata: {}, **)
-        filename = shrine_metadata["filename"] || id
-        file = Mongo::Grid::File.new(io, filename: filename, metadata: shrine_metadata, chunk_size: chunk_size)
-        bucket.insert_one(file)
-        id.replace(file.id.to_s + File.extname(id))
+        file = create_file(id, shrine_metadata: shrine_metadata)
+
+        until io.eof?
+          chunk = io.read([BATCH_SIZE, chunk_size].max, buffer ||= "")
+          grid_chunks = Mongo::Grid::File::Chunk.split(chunk, file.info, offset ||= 0)
+
+          chunks_collection.insert_many(grid_chunks)
+
+          offset += grid_chunks.count
+          grid_chunks.each { |grid_chunk| grid_chunk.data.data.clear } # deallocate strings
+          chunk.clear # deallocate string
+        end
+
+        files_collection.find(_id: file.id).update_one("$set" => {md5: file.info.md5.hexdigest})
       end
 
       def move(io, id, shrine_metadata: {}, **)
-        filename = shrine_metadata["filename"] || id
-        file = Mongo::Grid::File.new("", filename: filename, metadata: shrine_metadata, chunk_size: chunk_size)
-        bucket.insert_one(file)
-        id.replace(file.id.to_s + File.extname(id))
+        file = create_file(id, shrine_metadata: shrine_metadata)
 
         chunks_collection.find(files_id: bson_id(io.id)).update_many("$set" => {files_id: file.id})
         files_collection.delete_one(_id: bson_id(io.id))
@@ -72,6 +82,20 @@ class Shrine
       end
 
       private
+
+      def create_file(id, shrine_metadata: {})
+        file = Mongo::Grid::File.new("",
+          filename:   shrine_metadata["filename"] || id,
+          metadata:   shrine_metadata,
+          chunk_size: chunk_size,
+        )
+        id.replace(file.id.to_s + File.extname(id))
+
+        bucket.insert_one(file)
+
+        file.info.document[:md5] = Digest::MD5.new
+        file
+      end
 
       def files_collection
         bucket.files_collection
