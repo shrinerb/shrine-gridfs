@@ -25,10 +25,13 @@ Shrine::Storage::Gridfs.new(client: client)
 ### Prefix
 
 The default prefix (bucket name) is "fs", you can change it with the `:prefix`
-option:
+option, which is useful if you want to separate temporary and permanent storage.
 
 ```rb
-Shrine::Storage::Gridfs.new(client: client, prefix: "foo")
+Shrine.storages = {
+  cache: Shrine::Storage::Gridfs.new(prefix: "temp", **options),
+  store: Shrine::Storage::Gridfs.new(prefix: "fs", **options),
+}
 ```
 
 ### Chunk size
@@ -37,7 +40,7 @@ By default the Gridfs storage will store files in chunks of 256KB, you can
 change that via `:chunk_size`:
 
 ```rb
-Shrine::Storage::Gridfs.new(client: client, chunk_size: 1*1024*1024) # 1MB
+Shrine::Storage::Gridfs.new(chunk_size: 1*1024*1024, **options) # 1MB
 ```
 
 ### Batch size
@@ -46,7 +49,7 @@ When Gridfs storage uploads or copies a file, it will ensure that no more
 than `:batch_size` of data is loaded into memory at once (defaults to 5MB).
 
 ```rb
-Shrine::Storage::Gridfs.new(client: client, batch_size: 10*1024*1024) # 10MB
+Shrine::Storage::Gridfs.new(batch_size: 10*1024*1024, **options) # 10MB
 ```
 
 ### URLs
