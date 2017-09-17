@@ -62,7 +62,7 @@ Shrine.plugin :download_endpoint, storages: [:store]
 ```
 ```rb
 Rails.application.routes.draw do
-  mount Shrine::DownloadEndpoint => "/attachments"
+  mount Shrine.download_endpoint => "/attachments"
 end
 ```
 ```rb
