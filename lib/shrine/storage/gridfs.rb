@@ -46,12 +46,6 @@ class Shrine
       rescue Mongo::Error::FileNotFound
       end
 
-      def multi_delete(ids)
-        ids = ids.map { |id| bson_id(id) }
-        files_collection.find(_id: {"$in" => ids}).delete_many
-        chunks_collection.find(files_id: {"$in" => ids}).delete_many
-      end
-
       def url(id, **)
       end
 
