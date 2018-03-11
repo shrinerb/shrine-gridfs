@@ -86,5 +86,5 @@ This gem was inspired by [refile-gridfs].
 [MIT](http://opensource.org/licenses/MIT)
 
 [GridFS]: https://docs.mongodb.org/v3.0/core/gridfs/
-[Shrine]: https://github.com/janko-m/shrine
+[Shrine]: https://github.com/shrinerb/shrine
 [refile-gridfs]: https://github.com/Titinux/refile-gridfs
