@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name          = "shrine-gridfs"
-  gem.version       = "0.4.1"
+  gem.version       = "1.0.0"
 
   gem.required_ruby_version = ">= 2.1"
 

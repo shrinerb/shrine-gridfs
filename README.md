@@ -8,7 +8,8 @@ convenient when MongoDB is already used in the application.
 ## Installation
 
 ```ruby
-gem 'shrine-gridfs'
+# Gemfile
+gem "shrine-gridfs", "~> 1.0"
 ```
 
 ## Usage
