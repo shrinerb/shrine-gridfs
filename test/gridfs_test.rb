@@ -22,7 +22,7 @@ describe Shrine::Storage::Gridfs do
   end
 
   it "passes the linter" do
-    Shrine::Storage::Linter.new(@gridfs).call
+    Shrine::Storage::Linter.new(@gridfs, action: :warn).call
   end
 
   describe "#upload" do
@@ -76,6 +76,12 @@ describe Shrine::Storage::Gridfs do
       @gridfs.upload(fakeio("file"), id = "foo")
       io = @gridfs.open(id)
       assert_equal 4, io.size
+    end
+
+    it "raises Shrine::FileNotFound for missing file" do
+      assert_raises Shrine::FileNotFound do
+        @gridfs.open("5d8b3b02f1ef0cb387390fce")
+      end
     end
   end
 end

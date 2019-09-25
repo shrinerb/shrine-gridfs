@@ -27,11 +27,11 @@ class Shrine
       end
 
       def open(id, rewindable: true, **)
-        content_length = file_info(id)[:length]
+        info   = file_info(id) or raise Shrine::FileNotFound, "file #{id.inspect} not found on storage"
         stream = bucket.open_download_stream(bson_id(id))
 
         Down::ChunkedIO.new(
-          size:       content_length,
+          size:       info[:length],
           chunks:     stream.enum_for(:each),
           on_close:   -> { stream.close },
           rewindable: rewindable,
