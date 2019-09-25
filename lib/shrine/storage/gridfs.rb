@@ -26,14 +26,15 @@ class Shrine
         end
       end
 
-      def open(id)
+      def open(id, rewindable: true, **)
         content_length = file_info(id)[:length]
         stream = bucket.open_download_stream(bson_id(id))
 
         Down::ChunkedIO.new(
-          size: content_length,
-          chunks: stream.enum_for(:each),
-          on_close: -> { stream.close },
+          size:       content_length,
+          chunks:     stream.enum_for(:each),
+          on_close:   -> { stream.close },
+          rewindable: rewindable,
         )
       end
 
