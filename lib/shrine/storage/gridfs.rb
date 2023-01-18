@@ -72,24 +72,16 @@ class Shrine
       private
 
       def create(io, id, shrine_metadata: {})
-        file = create_file(id, shrine_metadata: shrine_metadata)
+        filename = shrine_metadata["filename"] || id
+        options = {
+          content_type: shrine_metadata["mime_type"] || "application/octet-stream",
+          metadata:     shrine_metadata,
+          chunk_size:   chunk_size,
+        }
 
-        until io.eof?
-          chunk = io.read([@batch_size, chunk_size].max, buffer ||= "")
-          grid_chunks = Mongo::Grid::File::Chunk.split(chunk, file.info, offset ||= 0)
+        file_id = bucket.upload_from_stream(filename, io, options)
 
-          chunks_collection.insert_many(grid_chunks)
-
-          offset += grid_chunks.count
-          grid_chunks.each { |grid_chunk| grid_chunk.data.data.clear } # deallocate strings
-          chunk.clear # deallocate string
-        end
-
-        files_collection.find(_id: file.id).update_one("$set" => {
-          length:     io.size,
-          uploadDate: Time.now.utc,
-          md5:        file.info.md5.hexdigest,
-        })
+        id.replace(file_id.to_s + File.extname(id))
       end
 
       def copy(io, id, shrine_metadata: {})
@@ -123,22 +115,6 @@ class Shrine
 
       def copyable?(io, id)
         io.is_a?(UploadedFile) && io.storage.is_a?(Storage::Gridfs)
-      end
-
-      def create_file(id, shrine_metadata: {})
-        file = Mongo::Grid::File.new("",
-          filename:     shrine_metadata["filename"] || id,
-          content_type: shrine_metadata["mime_type"] || "application/octet-stream",
-          metadata:     shrine_metadata,
-          chunk_size:   chunk_size,
-        )
-
-        bucket.insert_one(file)
-
-        id.replace(file.id.to_s + File.extname(id))
-        file.info.document[:md5] = Digest::MD5.new
-
-        file
       end
 
       def bson_id(id)
