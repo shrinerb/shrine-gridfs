@@ -7,7 +7,7 @@ describe Shrine::Storage::Gridfs do
   def gridfs(options = {})
     options[:client] ||= Mongo::Client.new("mongodb://127.0.0.1:27017/mydb", logger: Logger.new(nil))
 
-    Shrine::Storage::Gridfs.new(options)
+    Shrine::Storage::Gridfs.new(**options)
   end
 
   before do
